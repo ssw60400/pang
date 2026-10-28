@@ -17,6 +17,11 @@ var shake_strength: float = 0.0
 @onready var rand = RandomNumberGenerator.new()
 @onready var slow_mo_timer: Timer = $CameraSlowMoTimer
 
+func game_over(): #asdf
+	$CanvasLayer.process_mode = Node.PROCESS_MODE_ALWAYS
+	$CanvasLayer/GameOverPanel.show()
+	get_tree().paused = true
+
 func _ready():
 	var screen_size = get_viewport_rect().size
 	start_pos = Vector2(screen_size.x/2, screen_size.y/2)
@@ -25,6 +30,7 @@ func _ready():
 	rand.randomize()
 	noise.seed = rand.randi()
 	noise.frequency = 0.1
+	$CanvasLayer/GameOverPanel/VBoxContainer/MainButton.pressed.connect(_on_main_button_pressed) #asdf
 
 func _process(delta: float):
 	if enemy_list.size() == 0:
@@ -34,7 +40,7 @@ func _process(delta: float):
 			enemy.connect("enemy_destroyed", _on_enemy_destroyed)
 			var pos = Vector2(randf_range(100, 1000), randf_range(150, 500))
 			enemy.setup(pos, player)
-			get_tree().root.add_child(enemy)
+			add_child(enemy)
 			enemy_list.append(enemy)
 	shake_camera(delta)
 
@@ -78,3 +84,18 @@ func _on_enemy_destroyed(enemy):
 
 func _on_camera_slow_mo_timer_timeout():
 	stop_slow_motion()
+
+
+func _on_main_button_pressed(): #asdf
+	get_tree().paused = false
+	Engine.time_scale = 1.0
+	AudioServer.playback_speed_scale = 1.0
+	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+
+
+func _on_restart_button_pressed() -> void:
+	print("버튼 눌림!")
+	get_tree().paused = false
+	Engine.time_scale = 1.0
+	AudioServer.playback_speed_scale = 1.0
+	get_tree().reload_current_scene()

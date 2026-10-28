@@ -21,6 +21,8 @@ func _ready():
 func setup(pos: Vector2, _player: CharacterBody2D):
 	position = pos
 	player = _player
+	add_collision_exception_with(player)#asdf
+	player.add_collision_exception_with(self)#asdf
 
 func _physics_process(delta):
 	var dir = (player.global_position - global_position).normalized()

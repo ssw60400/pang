@@ -134,3 +134,7 @@ func push_back(delta: float):
 
 func _on_shot_timer_timeout():
 	is_shot_cd = false
+	
+func _on_hit_area_body_entered(body: Node2D) -> void: #asdf
+	if body.is_in_group("enemy"):
+		get_parent().game_over()
