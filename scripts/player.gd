@@ -96,12 +96,6 @@ func update_body_lr():
 		else:
 			body_lr_player.play("IdleL")
 
-#func update_body_rotate(mouse_pos: Vector2):
-	#if not rotate_flag:
-		#return
-	## Rotate with mouse
-	#body_rotate.look_at(mouse_pos)
-	#aim_pos = mouse_pos.normalized()
 	
 func update_body_rotate(mouse_pos: Vector2):
 	if not rotate_flag:
@@ -134,3 +128,7 @@ func push_back(delta: float):
 
 func _on_shot_timer_timeout():
 	is_shot_cd = false
+	
+func _on_hit_area_body_entered(body: Node2D) -> void: #asdf
+	if body.is_in_group("enemy"):
+		get_parent().game_over()
