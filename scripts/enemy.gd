@@ -2,7 +2,6 @@ extends CharacterBody2D
 
 signal enemy_destroyed(enemy)
 
-@export var health: int = 100
 @export var speed: float = 50.0
 
 var player: CharacterBody2D
@@ -14,10 +13,21 @@ var push_timer: float = 0.0
 @onready var damage_text: Label = $DamageTextContainer/DamageText
 @onready var anime_state_machine = animation_tree["parameters/playback"]
 @onready var blood_particle = preload("res://scenes/blood_particle.tscn")
+@export var max_health: int = 100
+var health: int = 0
 
+@onready var life_bar: ProgressBar = $LifeBar
 func _ready():
 	damage_text.visible = false
+	max_health = maxi(1, max_health)
+	health = max_health
+	update_life_bar()
 
+
+func update_life_bar():
+	life_bar.min_value = 0
+	life_bar.max_value = max_health
+	life_bar.value = health
 func setup(pos: Vector2, _player: CharacterBody2D):
 	position = pos
 	player = _player
@@ -31,7 +41,8 @@ func _physics_process(delta):
 	push_back(delta)
 
 func get_hit(damage: int, bullet_trans: Transform2D):
-	health -= damage
+	health = maxi(health - damage, 0)
+	update_life_bar()
 	damage_text.text = str(damage)
 	animation_tree['parameters/conditions/is_damaged'] = true
 	if health <= 0:

@@ -11,6 +11,13 @@ var is_shot_cd: bool = false
 var push_dir: Vector2 = Vector2(0, 0)
 var push_strength: float = 0.0
 var push_timer: float = 0.0
+@export var max_lives: int = 3
+@export var invincible_seconds: float = 1.0
+
+var lives: int = 0
+var is_invincible: bool = false
+
+@onready var life_label: Label = $LifeLabel
 
 # Reference
 @onready var body_lr: Polygon2D = $BodyLR
@@ -27,7 +34,13 @@ var push_timer: float = 0.0
 
 func _ready():
 	screen_size = get_viewport_rect().size
+	max_lives = maxi(1, max_lives)
+	lives = max_lives
+	update_life_label()
 	hide()
+
+func update_life_label():
+	life_label.text = "%d / %d" % [lives, max_lives]
 
 func _physics_process(delta):
 	velocity = Vector2.ZERO # The player's movement vector.
@@ -58,13 +71,10 @@ func _physics_process(delta):
 	#position.y = clamp(position.y, 0, screen_size.y)
 	move_and_slide()
 
+		
 func _input(event):
 	if event is InputEventMouseMotion:
-		update_body_rotate(event.position)
-		
-#func _input(event):
-	#if event is InputEventMouseMotion:
-		#update_body_rotate(get_global_mouse_position())
+		update_body_rotate(get_global_mouse_position())
 
 func setup(pos: Vector2):
 	position = pos
@@ -95,20 +105,13 @@ func update_body_lr():
 			body_lr_player.play("IdleR")
 		else:
 			body_lr_player.play("IdleL")
-
+	
 func update_body_rotate(mouse_pos: Vector2):
 	if not rotate_flag:
 		return
-	# Rotate with mouse
+
 	body_rotate.look_at(mouse_pos)
-	aim_pos = mouse_pos.normalized()
-	
-#func update_body_rotate(mouse_pos: Vector2):
-	#if not rotate_flag:
-		#return
-#
-	#body_rotate.look_at(mouse_pos)
-	#aim_pos = (mouse_pos - global_position).normalized()
+	aim_pos = (mouse_pos - global_position).normalized()
 
 func shoot():
 	body_rotete_player.play("Shot")
@@ -137,4 +140,45 @@ func _on_shot_timer_timeout():
 	
 func _on_hit_area_body_entered(body: Node2D) -> void: #asdf
 	if body.is_in_group("enemy"):
+		take_damage()
+
+func take_damage():
+	# 무적 상태이거나 이미 죽었으면 피해를 받지 않음
+	if is_invincible or lives <= 0:
+		return
+	lives -= 1
+	update_life_label()
+
+	# 라이프 표시용 Label이 있으면 갱신
+	var label = get_parent().get_node_or_null("CanvasLayer/LifeLabel")
+	if label != null:
+		label.text = "라이프: %d" % lives
+
+	if lives <= 0:
 		get_parent().game_over()
+		return
+
+	# 무적 시작: 플레이어를 반투명하게 표시
+	is_invincible = true
+	modulate.a = 0.4
+
+	await get_tree().create_timer(invincible_seconds, false).timeout
+
+	# 무적 종료
+	is_invincible = false
+	modulate.a = 1.0
+
+	# 무적이 끝났는데도 적과 겹쳐 있으면 다시 피해를 받음
+	for body in $HitArea.get_overlapping_bodies():
+		if body.is_in_group("enemy"):
+			take_damage()
+			break
+func set_max_lives(new_max: int, refill: bool = false):
+	max_lives = maxi(1, new_max)
+
+	if refill:
+		lives = max_lives
+	else:
+		lives = mini(lives, max_lives)
+
+	update_life_label()

@@ -198,6 +198,13 @@ light_mask = 0
 visibility_layer = 2
 shape = SubResource("CircleShape2D_yqjtg")
 
+[node name="LifeLabel" type="Label" parent="Player" unique_id=19258578]
+offset_left = -50.0
+offset_top = 45.0
+offset_right = -4.0
+offset_bottom = 68.0
+text = "Life: 3"
+
 [node name="CameraSlowMoTimer" type="Timer" parent="." unique_id=811787902]
 wait_time = 0.1
 one_shot = true
