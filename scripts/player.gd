@@ -58,13 +58,13 @@ func _physics_process(delta):
 	#position.y = clamp(position.y, 0, screen_size.y)
 	move_and_slide()
 
-func _input(event):
-	if event is InputEventMouseMotion:
-		update_body_rotate(event.position)
-		
 #func _input(event):
 	#if event is InputEventMouseMotion:
-		#update_body_rotate(get_global_mouse_position())
+		#update_body_rotate(event.position)
+		
+func _input(event):
+	if event is InputEventMouseMotion:
+		update_body_rotate(get_global_mouse_position())
 
 func setup(pos: Vector2):
 	position = pos
@@ -96,19 +96,19 @@ func update_body_lr():
 		else:
 			body_lr_player.play("IdleL")
 
-func update_body_rotate(mouse_pos: Vector2):
-	if not rotate_flag:
-		return
-	# Rotate with mouse
-	body_rotate.look_at(mouse_pos)
-	aim_pos = mouse_pos.normalized()
-	
 #func update_body_rotate(mouse_pos: Vector2):
 	#if not rotate_flag:
 		#return
-#
+	## Rotate with mouse
 	#body_rotate.look_at(mouse_pos)
-	#aim_pos = (mouse_pos - global_position).normalized()
+	#aim_pos = mouse_pos.normalized()
+	
+func update_body_rotate(mouse_pos: Vector2):
+	if not rotate_flag:
+		return
+
+	body_rotate.look_at(mouse_pos)
+	aim_pos = (mouse_pos - global_position).normalized()
 
 func shoot():
 	body_rotete_player.play("Shot")
