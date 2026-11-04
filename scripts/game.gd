@@ -16,6 +16,8 @@ var shake_strength: float = 0.0
 @onready var noise = FastNoiseLite.new()
 @onready var rand = RandomNumberGenerator.new()
 @onready var slow_mo_timer: Timer = $CameraSlowMoTimer
+@onready var timer = $CanvasLayer/TimerLabel
+
 
 func game_over(): #asdf
 	$CanvasLayer.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -31,6 +33,8 @@ func _ready():
 	noise.seed = rand.randi()
 	noise.frequency = 0.1
 	$CanvasLayer/GameOverPanel/VBoxContainer/MainButton.pressed.connect(_on_main_button_pressed) #asdf
+	
+	timer.start_timer()
 
 func _process(delta: float):
 	if enemy_list.size() == 0:
